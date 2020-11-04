@@ -1,3 +1,8 @@
+/**
+ * sfc - Single File Components 单文件组件
+ * 在此处理.vue文件
+ */
+
 /* @flow */
 
 import deindent from 'de-indent'

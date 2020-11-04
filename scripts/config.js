@@ -1,3 +1,5 @@
+// 在这里针对不同的环境变量生成rollup配置项打包
+
 const path = require('path')
 const buble = require('rollup-plugin-buble')
 const alias = require('rollup-plugin-alias')
@@ -9,6 +11,9 @@ const version = process.env.VERSION || require('../package.json').version
 const weexVersion = process.env.WEEX_VERSION || require('../packages/weex-vue-framework/package.json').version
 const featureFlags = require('./feature-flags')
 
+/**
+ * 版本号 在rollup配置项中使用
+ */
 const banner =
   '/*!\n' +
   ` * Vue.js v${version}\n` +
@@ -16,6 +21,9 @@ const banner =
   ' * Released under the MIT License.\n' +
   ' */'
 
+/**
+ * 一个rollup插件, weex相关
+ */
 const weexFactoryPlugin = {
   intro () {
     return 'module.exports = function weexFactory (exports, document) {'
@@ -25,7 +33,15 @@ const weexFactoryPlugin = {
   }
 }
 
+/**
+ * aliases 为各路径的关系映射(别名)
+ */
 const aliases = require('./alias')
+/**
+ * 用于处理路径转换
+ * 类似于 'web/entry-runtime.js'
+ * 转换成 '/<工作路径>/src/platforms/web/entry-runtime.js' 
+ */
 const resolve = p => {
   const base = p.split('/')[0]
   if (aliases[base]) {
@@ -35,6 +51,9 @@ const resolve = p => {
   }
 }
 
+/**
+ * 不同的环境变量在此对应不同的打包配置
+ */
 const builds = {
   // Runtime only (CommonJS). Used by bundlers e.g. Webpack & Browserify
   'web-runtime-cjs-dev': {
@@ -119,6 +138,7 @@ const builds = {
     env: 'production',
     banner
   },
+  // 运行时 + 编译器 的 开发构建版本（浏览器）
   // Runtime+compiler development build (Browser)
   'web-full-dev': {
     entry: resolve('web/entry-runtime-with-compiler.js'),
@@ -213,6 +233,9 @@ const builds = {
   }
 }
 
+/**
+ * Rollup 的 config 生成器 
+ */
 function genConfig (name) {
   const opts = builds[name]
   const config = {
@@ -263,6 +286,13 @@ function genConfig (name) {
   return config
 }
 
+/**
+ * 如果有 TARGET 环境变量
+ *  默认导出使用生成器函数生成的配置项
+ * 否则
+ *  导出配置项生成器函数 为 getBuild 字段
+ *  生成并导出所有配置项 为 getAllBuilds 字段
+ */
 if (process.env.TARGET) {
   module.exports = genConfig(process.env.TARGET)
 } else {
