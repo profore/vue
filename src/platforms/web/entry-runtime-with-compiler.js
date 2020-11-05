@@ -13,7 +13,7 @@ import { shouldDecodeNewlines, shouldDecodeNewlinesForHref } from './util/compat
 
 /**
  * 根据 id 找到 Dom 节点并缓存下来
- * cached 函数式编程中的缓存函数
+ * cached - 函数式编程中的缓存函数
  */
 const idToTemplate = cached(id => {
   const el = query(id)
@@ -45,24 +45,20 @@ Vue.prototype.$mount = function (
   }
 
   /**
-   * options 
-   * 实例化 vue 时的配置项
+   * options - 实例化 vue 时的配置项
    */
   const options = this.$options
-  // 如果没有 render 字段
+  // 如果没有 render 字段,解析 template/el 并转换为 render 函数
   // resolve template/el and convert to render function
   if (!options.render) {
-    /**
-     * 取出 options.template 字段
-     */
     let template = options.template
     // 如果有 template 字段
     if (template) {
       // 如果 template 是字符串
       if (typeof template === 'string') {
-        // 如果以 '#' 开头
+        // 如果以 '#' 开头, 说明是选择器语法的id
         if (template.charAt(0) === '#') {
-          // 根据 template 获取 Dom节点
+          // 根据 template(id选择器) 获取 Dom节点
           template = idToTemplate(template)
           // 如果啥都没获取到又在非production环境下则报警告
           /* istanbul ignore if */
@@ -90,10 +86,9 @@ Vue.prototype.$mount = function (
     }
     if (template) {
       /**
-       * 在非 production 
+       * 在非 production 情况下统计性能
        * mark 底层调用的 window.performance.mark
        * https://developer.mozilla.org/zh-CN/docs/Web/API/Window/performance
-       * 
        */
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -110,6 +105,7 @@ Vue.prototype.$mount = function (
         shouldDecodeNewlinesForHref,
         // 分隔符
         delimiters: options.delimiters,
+        // 备注
         comments: options.comments
       }, this)
       // 挂载至 option 对象上
@@ -117,6 +113,8 @@ Vue.prototype.$mount = function (
       options.staticRenderFns = staticRenderFns
 
       /**
+       * 在非 production 情况下统计性能
+       * measure 底层调用的 window.performance.measure
        * https://developer.mozilla.org/zh-CN/docs/Web/API/Performance/measure
        * 记录编译时间
        */
@@ -127,7 +125,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
-  // 调用缓存的 mount 方法
+  // 调用原始 mount 方法
   return mount.call(this, el, hydrating)
 }
 
@@ -157,7 +155,7 @@ function getOuterHTML (el: Element): string {
 }
 
 /**
- * 挂载 compileToFunctions 方法至 Vue.compile 字段上
+ * 挂载 编译 方法至 Vue.compile 字段上
  */
 Vue.compile = compileToFunctions
 
