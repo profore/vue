@@ -34,13 +34,22 @@ if (inBrowser) {
   } catch (e) {}
 }
 
+// 这里需要延迟评估是因为 vue之前可能会被使用
 // this needs to be lazy-evaled because vue may be required before
+// vue-server-renderer 可以设置 VUE_ENV 变量
 // vue-server-renderer can set VUE_ENV
 let _isServer
 export const isServerRendering = () => {
   if (_isServer === undefined) {
+    /**
+     * 不在浏览器环境, 不在weex环境, 并且全局有global变量
+     */
     /* istanbul ignore if */
     if (!inBrowser && !inWeex && typeof global !== 'undefined') {
+      /**
+       * 避免错误, 判断vue-server-renderer是否存在
+       * webpack填充的这个步骤
+       */
       // detect presence of vue-server-renderer and avoid
       // Webpack shimming the process
       _isServer = global['process'] && global['process'].env.VUE_ENV === 'server'
