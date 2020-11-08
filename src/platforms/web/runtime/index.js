@@ -30,6 +30,8 @@ Vue.config.isUnknownElement = isUnknownElement
 /**
  * 安装平台运行时的指令 和 组件
  * extend - 将属性(后者)混合到目标对象(前者)中。
+ * v-model v-show
+ * Transition TransitionGroup
  */
 // install platform runtime directives & components
 extend(Vue.options.directives, platformDirectives)
@@ -37,7 +39,7 @@ extend(Vue.options.components, platformComponents)
 
 /**
  * 如果是浏览器环境
- * 在原型上挂载 path 方法
+ * 在原型上挂载 path 方法, (把虚拟dom转化为真实dom)
  * 否者挂载空函数
  */
 // install platform patch function
