@@ -27,7 +27,7 @@ stateMixin(Vue)
 eventsMixin(Vue)
 // 注册 生命周期相关
 lifecycleMixin(Vue)
-// 注册 render函数相关
+// 注册 render函数相关 对用户传入的 render 函数进行调用与扩充
 renderMixin(Vue)
 
 export default Vue
