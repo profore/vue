@@ -73,10 +73,11 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 
   // 注册 Vue.use() 用来注册插件
   initUse(Vue)
-  // 注册 Vue.mixin() 实现混入 todo
+  // 注册 Vue.mixin() 实现混入
   initMixin(Vue)
-  // 注册 Vue.extend() 组件相关 todo
+  // 注册 Vue.extend() 组件相关
   initExtend(Vue)
-  // 注册 Vue.'component', 'directive', 'filter' todo
+  // 组件 指令 过滤器
+  // 注册 Vue.'component', 'directive', 'filter'
   initAssetRegisters(Vue)
 }

@@ -13,13 +13,16 @@ export function initExtend (Vue: GlobalAPI) {
   Vue.cid = 0
   let cid = 1
 
+  // 在 Vue 上挂载 extend 方法
   /**
    * Class inheritance
    */
   Vue.extend = function (extendOptions: Object): Function {
     extendOptions = extendOptions || {}
+    // Vue 构造函数
     const Super = this
     const SuperId = Super.cid
+    // 从缓存中加载组件的构造函数
     const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
     if (cachedCtors[SuperId]) {
       return cachedCtors[SuperId]
@@ -27,15 +30,19 @@ export function initExtend (Vue: GlobalAPI) {
 
     const name = extendOptions.name || Super.options.name
     if (process.env.NODE_ENV !== 'production' && name) {
+      // 如果使开发环境验证组件的名称
       validateComponentName(name)
     }
 
     const Sub = function VueComponent (options) {
+      // 调用 _init() 初始化
       this._init(options)
     }
+    // 原型继承自 Vue
     Sub.prototype = Object.create(Super.prototype)
     Sub.prototype.constructor = Sub
     Sub.cid = cid++
+    // 合并 options
     Sub.options = mergeOptions(
       Super.options,
       extendOptions
@@ -52,6 +59,7 @@ export function initExtend (Vue: GlobalAPI) {
       initComputed(Sub)
     }
 
+    // 将 Vue 实例上的成员拷贝过来
     // allow further extension/mixin/plugin usage
     Sub.extend = Super.extend
     Sub.mixin = Super.mixin
@@ -76,6 +84,7 @@ export function initExtend (Vue: GlobalAPI) {
 
     // cache constructor
     cachedCtors[SuperId] = Sub
+    // 返回构造函数
     return Sub
   }
 }
