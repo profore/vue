@@ -33,6 +33,7 @@ export function initLifecycle (vm: Component) {
   const options = vm.$options
 
   // locate first non-abstract parent
+  // 找到当前组件的父组件并添加到父组件的$children中
   let parent = options.parent
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {

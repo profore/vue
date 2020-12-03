@@ -14,6 +14,7 @@ export function initProvide (vm: Component) {
 }
 
 export function initInjections (vm: Component) {
+  // 解析需要注入的属性
   const result = resolveInject(vm.$options.inject, vm)
   if (result) {
     toggleObserving(false)
@@ -21,6 +22,7 @@ export function initInjections (vm: Component) {
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
         defineReactive(vm, key, result[key], () => {
+          // 避免直接改变注入值，因为只要所提供的组件重新渲染，更改就会被覆盖。
           warn(
             `Avoid mutating an injected value directly since the changes will be ` +
             `overwritten whenever the provided component re-renders. ` +

@@ -27,8 +27,10 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     // a flag to avoid this being observed
+    // 如果是 Vue 实例不需要被 observed(做成响应式数据)
     vm._isVue = true
     // merge options
+    // 合并 options(用户传入的和构造函数里的)
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
@@ -42,20 +44,31 @@ export function initMixin (Vue: Class<Component>) {
       )
     }
     /* istanbul ignore else */
+    // 渲染时需要用到的 Proxy(代理) 对象
     if (process.env.NODE_ENV !== 'production') {
+      // 判断当前环境是否有 Proxy 对象
+      // 如果有 vm._renderProxy 为 new Proxy(vm, handlers)
       initProxy(vm)
     } else {
       vm._renderProxy = vm
     }
     // expose real self
     vm._self = vm
+    // 初始化跟生命周期相关的变量
     initLifecycle(vm)
+    // 初始化当前组件的事件
     initEvents(vm)
+    // 编译render初始化
     initRender(vm)
+    // 触发生命周期
     callHook(vm, 'beforeCreate')
+    // 依赖注入 把 inject 的成员注入到 vm 上
     initInjections(vm) // resolve injections before data/props
+    // 基础核心 - props methods data computed watch 等核心功能注册
     initState(vm)
+    // 初始化 provide 属性
     initProvide(vm) // resolve provide after data/props
+    // 触发生命周期
     callHook(vm, 'created')
 
     /* istanbul ignore if */
@@ -64,7 +77,7 @@ export function initMixin (Vue: Class<Component>) {
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
-
+    // 调用 $mount() 挂载页面
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }

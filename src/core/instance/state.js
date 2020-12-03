@@ -48,13 +48,17 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
+  // 把 props 中的成员 转换成响应式数据 注入到实例中
   if (opts.props) initProps(vm, opts.props)
   if (opts.methods) initMethods(vm, opts.methods)
   if (opts.data) {
+    // 有data 则调用
     initData(vm)
   } else {
+    // 无data则转换默认{}为响应式对象
     observe(vm._data = {}, true /* asRootData */)
   }
+  // 计算属性和监听器
   if (opts.computed) initComputed(vm, opts.computed)
   if (opts.watch && opts.watch !== nativeWatch) {
     initWatch(vm, opts.watch)
@@ -72,6 +76,7 @@ function initProps (vm: Component, propsOptions: Object) {
   if (!isRoot) {
     toggleObserving(false)
   }
+  // 遍历所有属性
   for (const key in propsOptions) {
     keys.push(key)
     const value = validateProp(key, propsOptions, propsData, vm)
@@ -80,6 +85,7 @@ function initProps (vm: Component, propsOptions: Object) {
       const hyphenatedKey = hyphenate(key)
       if (isReservedAttribute(hyphenatedKey) ||
           config.isReservedAttr(hyphenatedKey)) {
+        // ${hyphenatedKey} 是保留属性，不能用作组件属性。
         warn(
           `"${hyphenatedKey}" is a reserved attribute and cannot be used as component prop.`,
           vm
@@ -87,6 +93,7 @@ function initProps (vm: Component, propsOptions: Object) {
       }
       defineReactive(props, key, value, () => {
         if (!isRoot && !isUpdatingChildComponent) {
+          // 尽量避免直接赋值
           warn(
             `Avoid mutating a prop directly since the value will be ` +
             `overwritten whenever the parent component re-renders. ` +
@@ -97,11 +104,14 @@ function initProps (vm: Component, propsOptions: Object) {
         }
       })
     } else {
+      // 转换成set/get代理对象存储到props中
       defineReactive(props, key, value)
     }
     // static props are already proxied on the component's prototype
     // during Vue.extend(). We only need to proxy props defined at
     // instantiation here.
+    // 判断属性是否在实例中存在
+    // 不存在则出入到 vm(实例) 中
     if (!(key in vm)) {
       proxy(vm, `_props`, key)
     }
@@ -111,6 +121,8 @@ function initProps (vm: Component, propsOptions: Object) {
 
 function initData (vm: Component) {
   let data = vm.$options.data
+  // 初始化 _data, 组件中 data 是函数, 调用函数返回结果
+  // 否则直接返回 data
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
@@ -123,13 +135,16 @@ function initData (vm: Component) {
     )
   }
   // proxy data on instance
+  // 获取 data 中的所有属性
   const keys = Object.keys(data)
+  // 获取 props / methods
   const props = vm.$options.props
   const methods = vm.$options.methods
   let i = keys.length
   while (i--) {
     const key = keys[i]
     if (process.env.NODE_ENV !== 'production') {
+      // 如果重名发送警告
       if (methods && hasOwn(methods, key)) {
         warn(
           `Method "${key}" has already been defined as a data property.`,
@@ -138,16 +153,19 @@ function initData (vm: Component) {
       }
     }
     if (props && hasOwn(props, key)) {
+      // 如果重名发送警告
       process.env.NODE_ENV !== 'production' && warn(
         `The data property "${key}" is already declared as a prop. ` +
         `Use prop default value instead.`,
         vm
       )
     } else if (!isReserved(key)) {
+      // 如果不是以_或者$开头则注入到实例
       proxy(vm, `_data`, key)
     }
   }
   // observe data
+  // 把 data 转换成响应式对象
   observe(data, true /* asRootData */)
 }
 
@@ -264,6 +282,7 @@ function initMethods (vm: Component, methods: Object) {
   for (const key in methods) {
     if (process.env.NODE_ENV !== 'production') {
       if (typeof methods[key] !== 'function') {
+        // 不是 function 发送警告
         warn(
           `Method "${key}" has type "${typeof methods[key]}" in the component definition. ` +
           `Did you reference the function correctly?`,
@@ -271,18 +290,21 @@ function initMethods (vm: Component, methods: Object) {
         )
       }
       if (props && hasOwn(props, key)) {
+        // 在 props 对象中是否存在
         warn(
           `Method "${key}" has already been defined as a prop.`,
           vm
         )
       }
       if ((key in vm) && isReserved(key)) {
+        // 是否在vue实例中存在 或者是否以 _, $ 开头
         warn(
           `Method "${key}" conflicts with an existing Vue instance method. ` +
           `Avoid defining component methods that start with _ or $.`
         )
       }
     }
+    // 判断是否是函数 不是则返回空函数 是的话使用bind改变this
     vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm)
   }
 }
