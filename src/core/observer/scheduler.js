@@ -75,16 +75,20 @@ function flushSchedulerQueue () {
 
   // Sort queue before flush.
   // This ensures that:
+  // 组件更新的顺序是从父组件到子组件, 因为我们先创建的父组件后创建的子组件
   // 1. Components are updated from parent to child. (because parent is always
   //    created before the child)
+  // 组件的用户watcher要在渲染watcher之前运行
   // 2. A component's user watchers are run before its render watcher (because
   //    user watchers are created before the render watcher)
+  // 如果一个组件在他的父组件执行之前被销毁了, 那这个watcher因该被跳过
   // 3. If a component is destroyed during a parent component's watcher run,
   //    its watchers can be skipped.
   queue.sort((a, b) => a.id - b.id)
 
   // do not cache length because more watchers might be pushed
   // as we run existing watchers
+  // 不要缓存和使用length 因为可能在队列执行中添加watcher
   for (index = 0; index < queue.length; index++) {
     watcher = queue[index]
     if (watcher.before) {
