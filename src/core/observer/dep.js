@@ -20,6 +20,7 @@ export default class Dep {
     this.subs = []
   }
 
+  // 添加新的订阅者 watcher 对象
   addSub (sub: Watcher) {
     this.subs.push(sub)
   }
@@ -28,8 +29,10 @@ export default class Dep {
     remove(this.subs, sub)
   }
 
+  // 将观察对象和 watcher 建立依赖
   depend () {
     if (Dep.target) {
+      // 如果 target(watcher对象)存在, 把dep对象添加到watcher的依赖中
       Dep.target.addDep(this)
     }
   }
@@ -49,18 +52,22 @@ export default class Dep {
   }
 }
 
+// 用来存放目前正在使用的watcher
+// 全局唯一, 并且一次也只能有一个watcher被使用
 // The current target watcher being evaluated.
 // This is globally unique because only one watcher
 // can be evaluated at a time.
 Dep.target = null
 const targetStack = []
 
+// 入栈并将当前 watcher 赋值给Dep.target
 export function pushTarget (target: ?Watcher) {
   targetStack.push(target)
   Dep.target = target
 }
 
 export function popTarget () {
+  // 出栈
   targetStack.pop()
   Dep.target = targetStack[targetStack.length - 1]
 }
