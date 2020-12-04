@@ -88,8 +88,10 @@ export function _createElement (
     children.length = 0
   }
   if (normalizationType === ALWAYS_NORMALIZE) {
+    // 返回一维数组, 处理用户手写的render
     children = normalizeChildren(children)
   } else if (normalizationType === SIMPLE_NORMALIZE) {
+    // 把二维数组, 转换为一维数组
     children = simpleNormalizeChildren(children)
   }
   let vnode, ns
@@ -109,6 +111,9 @@ export function _createElement (
         undefined, undefined, context
       )
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
+      // 判断是否是自定义组件
+      // 查找自定义组件构造函数的声明
+      // 根据 Ctor 创建组件的 VNode
       // component
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
@@ -121,6 +126,7 @@ export function _createElement (
       )
     }
   } else {
+    // 如果 tag 不是字符串, 那它应该是一个组件
     // direct component options / constructor
     vnode = createComponent(tag, data, context, children)
   }
