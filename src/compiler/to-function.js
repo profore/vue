@@ -49,6 +49,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
     }
 
     // check cache
+    // 判断缓存中是否有编译的结果, 如果有 不需要编译 直接返回
     const key = options.delimiters
       ? String(options.delimiters) + template
       : template
@@ -57,9 +58,11 @@ export function createCompileToFunctionFn (compile: Function): Function {
     }
 
     // compile
+    // 把模板编译为编译对象(render, staticRenderFns, errors, tips), 字符串形式的js代码
     const compiled = compile(template, options)
 
     // check compilation errors/tips
+    // 处理错误与信息
     if (process.env.NODE_ENV !== 'production') {
       if (compiled.errors && compiled.errors.length) {
         if (options.outputSourceRange) {
@@ -90,6 +93,9 @@ export function createCompileToFunctionFn (compile: Function): Function {
     // turn code into functions
     const res = {}
     const fnGenErrors = []
+
+    // 把字符串形式的js代码转换成js方法
+    // 原理 new Function('str')
     res.render = createFunction(compiled.render, fnGenErrors)
     res.staticRenderFns = compiled.staticRenderFns.map(code => {
       return createFunction(code, fnGenErrors)
@@ -109,6 +115,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
       }
     }
 
+    // 缓存并返回res对象(render, staticRenderFns)
     return (cache[key] = res)
   }
 }

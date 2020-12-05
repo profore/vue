@@ -25,9 +25,9 @@ export function initAssetRegisters (Vue: GlobalAPI) {
         // 如果是组件 
         // isPlainObject 是否是原始 object 对象
         if (type === 'component' && isPlainObject(definition)) {
-          // 是否有设置 name 属性, 没有默认 id
+          // 是否有设置 name 属性, 没有默认 id 作为组件名称
           definition.name = definition.name || id
-          // 把组件配置转换为组件构造函数
+          // 把组件配置转换为组件构造函数 this.options._base 是vue的构造函数
           definition = this.options._base.extend(definition)
         }
         if (type === 'directive' && typeof definition === 'function') {
